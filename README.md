@@ -89,11 +89,14 @@ Para configurar o banco do zero, execute os scripts nesta ordem:
 
 ## 👥 Integrantes
 
-| Nome | Matrícula |
-|------|-----------|
-|      |           |
-|      |           |
-|      |           |
+| Nome | GitHub |
+|------|--------|
+| Philip Santiago | [@philipsantiagoo](https://github.com/philipsantiagoo) |
+| Arthur Dias | [@ado-938](https://github.com/ado-938) |
+| Felipe Augusto | [@lipek6](https://github.com/lipek6) |
+| Gabriel André | [@GabrielAndreSFC](https://github.com/GabrielAndreSFC) |
+| Vinícius Arraes | [@viniciusarraes](https://github.com/viniciusarraes) |
+| Felipe Mateus | [@fel201](https://github.com/fel201) |
 
 ---
 
