@@ -1,3 +1,13 @@
+-- ==========================================
+-- SEQUÊNCIAS DO SISTEMA
+-- ==========================================
+CREATE SEQUENCE seq_credencial_fia
+    START WITH 1000     -- A primeira credencial será 1000
+    INCREMENT BY 1      -- Vai pular de 1 em 1
+    NOCACHE             -- Evita pular números caso o banco reinicie
+    NOCYCLE;            -- A sequência não recomeça quando atingir o limite
+
+    
 CREATE TABLE Pessoa(
     credencial_FIA  VARCHAR2(50)  NOT NULL,
     nome            VARCHAR2(150) NOT NULL,
