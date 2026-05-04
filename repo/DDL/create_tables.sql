@@ -331,7 +331,7 @@ CREATE TABLE Volta(
     CONSTRAINT pk_volta PRIMARY KEY(numero_volta, tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto),
     
     CONSTRAINT fk_volta_participa FOREIGN KEY(tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto)
-        REFERENCES Participa_sessao(tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto) ON DELETE CASCADE
+        REFERENCES Participa_sessao(tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto)
 );
 
 
@@ -349,12 +349,12 @@ CREATE TABLE Telemetria(
     porcentagem_bateria_ERS NUMBER(3)     NOT NULL, 
     rpm                     NUMBER(5)     NOT NULL, 
     aceleracao              NUMBER(4, 2)  NOT NULL, 
-    velocidade              NUMBER(3)     NOT NULL, --
+    velocidade              NUMBER(3)     NOT NULL,
 
     CONSTRAINT pk_telemetria PRIMARY KEY(timestamp_leitura, numero_volta, tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto),
     
     CONSTRAINT fk_telemetria_volta FOREIGN KEY(numero_volta, tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto)
-        REFERENCES Volta(numero_volta, tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto) ON DELETE CASCADE,
+        REFERENCES Volta(numero_volta, tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto),
         
     CONSTRAINT ck_telemetria_bateria CHECK(porcentagem_bateria_ERS BETWEEN 0 AND 100),
     CONSTRAINT ck_telemetria_rpm CHECK(rpm >= 0)
