@@ -128,9 +128,9 @@ CREATE TABLE Piloto(
 
 
 CREATE TABLE Patrocinador(
-    LEI          VARCHAR2(50) NOT NULL,
+    LEI          VARCHAR2(50)  NOT NULL,
     nome_empresa VARCHAR2(150) NOT NULL,
-    pais_empresa VARCHAR2(50) NOT NULL,         -- Pais deveria ser not null? devemos nos importar com patrocinadores sem pais?
+    pais_empresa VARCHAR2(50)  NOT NULL,         
 
     CONSTRAINT pk_patrocinador PRIMARY KEY(LEI)
 );
@@ -154,4 +154,48 @@ CREATE TABLE Contrato(
 
 
 
--- CREATE TABLE Patrocina();
+CREATE TABLE Patrocina(
+    LEI_patrocinador        VARCHAR2(50) NOT NULL,
+    credencial_FIA_piloto   VARCHAR2(50) NOT NULL,
+    data_inicio             DATE         NOT NULL, 
+    data_fim                DATE,
+    valor                   NUMBER(15, 2)NOT NULL,
+
+    CONSTRAINT pk_patrocina PRIMARY KEY(LEI_patrocinador, credencial_FIA_piloto, data_inicio),
+    CONSTRAINT fk_patrocina_patrocinador FOREIGN KEY(LEI_patrocinador)
+        REFERENCES Patrocinador(LEI),
+    CONSTRAINT fk_patrocina_piloto FOREIGN KEY(credencial_FIA_piloto)
+        REFERENCES Piloto(credencial_FIA_pessoa),
+    CONSTRAINT ck_patrocina_datas CHECK(data_fim IS NULL OR data_fim >= data_inicio)
+);
+
+
+
+-- Vai precisar de um trigger pra validar esse ano futuramente.
+CREATE TABLE Modelo_carro(
+    nome_modelo VARCHAR2(50)                NOT NULL,
+    ano_projeto NUMBER(4)                   NOT NULL,
+    nome_equipe_desenvolvedora VARCHAR2(50) NOT NULL,
+    fabricante_motor VARCHAR2(50)           NOT NULL,
+
+    CONSTRAINT pk_modelo_carro PRIMARY KEY(nome_modelo, ano_projeto),
+    CONSTRAINT fk_modelo_carro_equipe FOREIGN KEY(nome_equipe_desenvolvedora)
+        REFERENCES Equipe(nome_equipe)
+);
+
+
+
+CREATE TABLE Chassi(
+    codigo_chassi      VARCHAR2(20) NOT NULL,
+    nome_modelo        VARCHAR2(50) NOT NULL,
+    ano_projeto_modelo NUMBER(4)    NOT NULL,
+    numero_carro       NUMBER(2)    NOT NULL,
+    status_carro       CHAR(2)      NOT NULL,           -- Adicionar um default aqui
+
+    CONSTRAINT pk_chassi PRIMARY KEY(codigo_chassi, nome_modelo, ano_projeto_modelo),
+    CONSTRAINT fk_chassi_modelo_carro_nome FOREIGN KEY(nome_modelo)
+        REFERENCES Modelo_carro(nome_modelo),
+    CONSTRAINT fk_chassi_modelo_carro_ano FOREIGN KEY(ano_projeto_modelo)
+        REFERENCES Modelo_carro(ano_projeto)
+);
+
