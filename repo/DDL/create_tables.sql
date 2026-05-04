@@ -199,3 +199,50 @@ CREATE TABLE Chassi(
         REFERENCES Modelo_carro(ano_projeto)
 );
 
+
+
+CREATE TABLE Temporada(
+    ano NUMBER(4) NOT NULL,
+
+    CONSTRAINT pk_temporada PRIMARY KEY(ano)
+);
+
+
+
+CREATE TABLE Participa_temporada(
+    nome_equipe_participante VARCHAR2(50) NOT NULL,
+    ano_temporada            NUMBER(4)    NOT NULL,
+
+    CONSTRAINT pk_participa_temporada PRIMARY KEY(nome_equipe_participante, ano_temporada),
+    CONSTRAINT fk_participa_temporada_equipe FOREIGN KEY(nome_equipe_participante)
+        REFERENCES Equipe(nome_equipe),
+    CONSTRAINT fk_participa_temporada_temporada FOREIGN KEY(ano_temporada)
+        REFERENCES Temporada(ano)
+);
+
+
+
+CREATE TABLE Grande_premio(
+    nome_gp       VARCHAR2(50)    NOT NULL,
+    ano_temporada NUMBER(4)       NOT NULL,
+    pais          VARCHAR2(50)    NOT NULL,
+    numero_voltas NUMBER(2)       NOT NULL,
+    circuito      VARCHAR(50)     NOT NULL,
+
+    CONSTRAINT pk_grande_premio PRIMARY KEY(nome_gp, ano_temporada),
+    CONSTRAINT fk_grande_premio_temporada FOREIGN KEY(ano_temporada)
+        REFERENCES Temporada(ano)
+);
+
+
+CREATE TABLE Sessao(
+    tipo_sessao VARCHAR2(50) NOT NULL,
+    nome_gp     VARCHAR2(50) NOT NULL,
+    ano_gp      NUMBER(4)    NOT NULL,
+    data_sessao DATE         NOT NULL,
+    horario     TIMESTAMP    NOT NULL,
+
+    CONSTRAINT pk_sessao PRIMARY KEY(tipo_sessao, nome_gp, ano_gp),
+    CONSTRAINT fk_sessao_
+
+);
