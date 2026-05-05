@@ -137,72 +137,10 @@ INSERT INTO Patrocinador (LEI, nome_empresa, pais_empresa)
   VALUES ('AWS110006M94867W22V99', 'Amazon Web Services', 'EUA');
 
 
-
 -- 6. ENTIDADE: Temporada
-
 INSERT INTO Temporada (ano) VALUES (2024);
 INSERT INTO Temporada (ano) VALUES (2025);
 INSERT INTO Temporada (ano) VALUES (2026);
-
-
--- 7. ENTIDADE: Funcionario_FIA
-
-INSERT INTO Funcionario_FIA (credencial_FIA_pessoa, licenca_staff, cargo_exercido)
-  VALUES (v_cred_juan, 'LS-JMC001', 'Race Steward');
-
-INSERT INTO Funcionario_FIA (credencial_FIA_pessoa, licenca_staff, cargo_exercido)
-  VALUES (v_cred_fabiana, 'LS-FF002', 'Race Control Officer');
-
-INSERT INTO Funcionario_FIA (credencial_FIA_pessoa, licenca_staff, cargo_exercido)
-  VALUES (v_cred_niels, 'LS-NW003', 'Race Director');
-
--- 8. ENTIDADE: Grande_premio
-
-INSERT INTO Grande_premio (nome_gp, ano_temporada, pais, numero_voltas, circuito)
-  VALUES ('Grand Prix da Austrália', 2024, 'Austrália', 58, 'Albert Park');
-
-INSERT INTO Grande_premio (nome_gp, ano_temporada, pais, numero_voltas, circuito)
-  VALUES ('Grand Prix de Mônaco', 2024, 'Mônaco', 78, 'Circuit de Monaco');
-
-INSERT INTO Grande_premio (nome_gp, ano_temporada, pais, numero_voltas, circuito)
-  VALUES ('Grand Prix da Grã-Bretanha', 2024, 'Reino Unido', 52, 'Silverstone');
-
-INSERT INTO Grande_premio (nome_gp, ano_temporada, pais, numero_voltas, circuito)
-  VALUES ('Grand Prix do Brasil', 2025, 'Brasil', 71, 'Interlagos');
-
--- 9. ENTIDADE: Sessao 
-
-INSERT INTO Sessao (tipo_sessao, nome_gp, ano_gp, data_sessao, horario)
-  VALUES ('Treino Livre 1', 'Grand Prix da Austrália', 2024, TO_DATE('2024-03-22', 'YYYY-MM-DD'), TO_TIMESTAMP('2024-03-22 10:30:00', 'YYYY-MM-DD HH24:MI:SS'));
-
-INSERT INTO Sessao (tipo_sessao, nome_gp, ano_gp, data_sessao, horario)
-  VALUES ('Treino Livre 2', 'Grand Prix da Austrália', 2024, TO_DATE('2024-03-22', 'YYYY-MM-DD'), TO_TIMESTAMP('2024-03-22 14:30:00', 'YYYY-MM-DD HH24:MI:SS'));
-
-INSERT INTO Sessao (tipo_sessao, nome_gp, ano_gp, data_sessao, horario)
-  VALUES ('Qualificação', 'Grand Prix da Austrália', 2024, TO_DATE('2024-03-23', 'YYYY-MM-DD'), TO_TIMESTAMP('2024-03-23 17:00:00', 'YYYY-MM-DD HH24:MI:SS'));
-
-INSERT INTO Sessao (tipo_sessao, nome_gp, ano_gp, data_sessao, horario)
-  VALUES ('Corrida', 'Grand Prix da Austrália', 2024, TO_DATE('2024-03-24', 'YYYY-MM-DD'), TO_TIMESTAMP('2024-03-24 15:00:00', 'YYYY-MM-DD HH24:MI:SS'));
-
-INSERT INTO Sessao (tipo_sessao, nome_gp, ano_gp, data_sessao, horario)
-  VALUES ('Qualificação', 'Grand Prix de Mônaco', 2024, TO_DATE('2024-05-25', 'YYYY-MM-DD'), TO_TIMESTAMP('2024-05-25 14:00:00', 'YYYY-MM-DD HH24:MI:SS'));
-
--- 10. ENTIDADE: Atua_em 
-
-INSERT INTO Atua_em (credencial_FIA_funcionario, tipo_sessao, nome_gp, ano_gp)
-  VALUES (v_cred_juan, 'Treino Livre 1', 'Grand Prix da Austrália', 2024);
-
-INSERT INTO Atua_em (credencial_FIA_funcionario, tipo_sessao, nome_gp, ano_gp)
-  VALUES (v_cred_juan, 'Treino Livre 2', 'Grand Prix da Austrália', 2024);
-
-INSERT INTO Atua_em (credencial_FIA_funcionario, tipo_sessao, nome_gp, ano_gp)
-  VALUES (v_cred_fabiana, 'Qualificação', 'Grand Prix da Austrália', 2024);
-
-INSERT INTO Atua_em (credencial_FIA_funcionario, tipo_sessao, nome_gp, ano_gp)
-  VALUES (v_cred_niels, 'Corrida', 'Grand Prix da Austrália', 2024);
-
-INSERT INTO Atua_em (credencial_FIA_funcionario, tipo_sessao, nome_gp, ano_gp)
-  VALUES (v_cred_niels, 'Qualificação', 'Grand Prix de Mônaco', 2024);
 
   COMMIT;
 END;
