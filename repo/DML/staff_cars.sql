@@ -98,13 +98,10 @@ VALUES('1114', 'UltraSpeed', TO_DATE('2007-02-15', 'YYYY-MM-DD'), 004, 'Ativo');
 --Participa_temporada--
 
 INSERT INTO Participa_temporada(nome_equipe_participante, ano_temporada)
-VALUES('Oracle Red Bull Racing', TO_DATE('', 'YYYY-MM-DD'));
+VALUES('Oracle Red Bull Racing', TO_DATE('2024', 'YYYY'));
 
 INSERT INTO Participa_temporada(nome_equipe_participante, ano_temporada)
-VALUES('Mercedes-AMG Petronas', TO_DATE('', 'YYYY-MM-DD'));
+VALUES('Mercedes-AMG Petronas', TO_DATE('2025', 'YYYY'));
 
 INSERT INTO Participa_temporada(nome_equipe_participante, ano_temporada)
-VALUES('Scuderia Ferrari', TO_DATE('', 'YYYY-MM-DD'));
-
-INSERT INTO Participa_temporada(nome_equipe_participante, ano_temporada)
-VALUES('McLaren Formula 1 Team', TO_DATE('', 'YYYY-MM-DD'));
+VALUES('Scuderia Ferrari', TO_DATE('2026', 'YYYY'));
