@@ -28,44 +28,44 @@ VALUES('1003', 'McLaren Formula 1 Team', '1200-3002', 'Piloto', 'Equipe de Corri
 --Chefe--
 
 INSERT INTO Chefe(credencial_FIA_funcionario, nome_equipe_liderada, data_assuncao_equipe, cargo_chefe)
-VALUES('1230-4000', 'Scuderia Ferrari', TO_DATE('1992-03-22', 'YYYY-MM-DD'), 'Chefe');
+VALUES('1004', 'Scuderia Ferrari', TO_DATE('1992-03-22', 'YYYY-MM-DD'), 'Chefe');
 
 INSERT INTO Chefe(credencial_FIA_funcionario, nome_equipe_liderada, data_assuncao_equipe, cargo_chefe)
-VALUES('1230-4001', 'McLaren Formula 1 Team', TO_DATE('2005-09-01', 'YYYY-MM-DD'), 'Chefe');
+VALUES('1005', 'McLaren Formula 1 Team', TO_DATE('2005-09-01', 'YYYY-MM-DD'), 'Chefe');
 
 INSERT INTO Chefe(credencial_FIA_funcionario, nome_equipe_liderada, data_assuncao_equipe, cargo_chefe)
-VALUES('1230-4002', 'Oracle Red Bull Racing', TO_DATE('2023-06-13', 'YYYY-MM-DD'), 'Chefe');
+VALUES('1006', 'Oracle Red Bull Racing', TO_DATE('2023-06-13', 'YYYY-MM-DD'), 'Chefe');
 
 INSERT INTO Chefe(credencial_FIA_funcionario, nome_equipe_liderada, data_assuncao_equipe, cargo_chefe)
-VALUES('1230-4003', 'Mercedes-AMG Petronas', TO_DATE('2011-02-24', 'YYYY-MM-DD'), 'Chefe');
+VALUES('1007', 'Mercedes-AMG Petronas', TO_DATE('2011-02-24', 'YYYY-MM-DD'), 'Chefe');
 
 --Engenheiro--
 
 INSERT INTO Engenheiro(credencial_FIA_funcionario, especialidade)
-VALUES('1600-2000', 'Chassi');
+VALUES('1008', 'Chassi');
 
 INSERT INTO Engenheiro(credencial_FIA_funcionario, especialidade)
-VALUES('1600-2001', 'Motor');
+VALUES('1009', 'Motor');
 
 INSERT INTO Engenheiro(credencial_FIA_funcionario, especialidade)
-VALUES('1600-2002', 'Aerofolio');
+VALUES('1010', 'Aerofolio');
 
 INSERT INTO Engenheiro(credencial_FIA_funcionario, especialidade)
-VALUES('1600-2003', 'Sistema Elétrico');
+VALUES('1011', 'Sistema Elétrico');
 
 --Mecanico--
 
 INSERT INTO Mecanico(credencial_FIA_funcionario, posicao_pit_stop, especialidade)
-VALUES('1900-7000', 'Gunners', 'Pneus');
+VALUES('1012', 'Gunners', 'Pneus');
 
 INSERT INTO Mecanico(credencial_FIA_funcionario, posicao_pit_stop, especialidade)
-VALUES('1900-7001', 'Jack Men', 'Macaco Hidráulico');
+VALUES('1013', 'Jack Men', 'Macaco Hidráulico');
 
 INSERT INTO Mecanico(credencial_FIA_funcionario, posicao_pit_stop, especialidade)
-VALUES('1900-7002', 'Tire Off', 'Pneus');
+VALUES('1014', 'Tire Off', 'Pneus');
 
 INSERT INTO Mecanico(credencial_FIA_funcionario, posicao_pit_stop, especialidade)
-VALUES('1900-7003', 'Tire On', 'Pneus');
+VALUES('1015', 'Tire On', 'Pneus');
 
 --Modelo_carro--
 
@@ -98,13 +98,13 @@ VALUES('1114', 'UltraSpeed', TO_DATE('2007-02-15', 'YYYY-MM-DD'), 004, 'Ativo');
 --Participa_temporada--
 
 INSERT INTO Participa_temporada(nome_equipe_participante, ano_temporada)
-VALUES('McQueen', TO_DATE('', 'YYYY-MM-DD'));
+VALUES('Oracle Red Bull Racing', TO_DATE('', 'YYYY-MM-DD'));
 
 INSERT INTO Participa_temporada(nome_equipe_participante, ano_temporada)
-VALUES('Mojangui', TO_DATE('', 'YYYY-MM-DD'));
+VALUES('Mercedes-AMG Petronas', TO_DATE('', 'YYYY-MM-DD'));
 
 INSERT INTO Participa_temporada(nome_equipe_participante, ano_temporada)
-VALUES('Falcon', TO_DATE('', 'YYYY-MM-DD'));
+VALUES('Scuderia Ferrari', TO_DATE('', 'YYYY-MM-DD'));
 
 INSERT INTO Participa_temporada(nome_equipe_participante, ano_temporada)
-VALUES('UltraSpeed', TO_DATE('', 'YYYY-MM-DD'));
+VALUES('McLaren Formula 1 Team', TO_DATE('', 'YYYY-MM-DD'));
