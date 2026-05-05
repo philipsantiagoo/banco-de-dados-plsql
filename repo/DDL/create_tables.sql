@@ -13,8 +13,7 @@ CREATE TABLE Pessoa(
     nome            VARCHAR2(150) NOT NULL,
     data_nascimento DATE          NOT NULL,
 
-    CONSTRAINT pk_pessoa PRIMARY KEY(credencial_FIA),
-    CONSTRAINT ck_pessoa_data_nascimento CHECK(data_nascimento <= SYSDATE)
+    CONSTRAINT pk_pessoa PRIMARY KEY(credencial_FIA)
 );
 
 
@@ -43,7 +42,6 @@ CREATE TABLE Passaporte(
     CONSTRAINT pk_passaporte PRIMARY KEY(numero, pais_emissor),
     CONSTRAINT fk_passaporte_pessoa FOREIGN KEY(credencial_FIA_pessoa)
         REFERENCES Pessoa(credencial_FIA),
-    CONSTRAINT ck_passaporte_data_emissao  CHECK(data_emissao <= SYSDATE),
     CONSTRAINT ck_passaporte_data_validade CHECK(data_validade > data_emissao)
 );
 
