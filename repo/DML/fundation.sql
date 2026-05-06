@@ -6,6 +6,29 @@
 
 -- 
 DECLARE
+  v_cred Pessoa.credencial_FIA%TYPE;
+  v_nome_gerado VARCHAR2(150);
+  
+  -- 1. Aumentamos o VARRAY para suportar até 20 itens
+  TYPE t_array_texto IS VARRAY(20) OF VARCHAR2(50);
+  
+  -- Arrays de Países e DDIS (20 opções sincronizadas)
+  v_paises t_array_texto := t_array_texto('Itália', 'Alemanha', 'França', 'Brasil', 'Japão', 'EUA', 'Espanha', 'Austrália', 'Canadá', 'Holanda', 'Bélgica', 'México', 'Suíça', 'Áustria', 'Finlândia', 'Portugal', 'Argentina', 'Polônia', 'Suécia', 'Noruega');
+  v_ddis   t_array_texto := t_array_texto('+39', '+49', '+33', '+55', '+81', '+1', '+34', '+61', '+1', '+31', '+32', '+52', '+41', '+43', '+358', '+351', '+54', '+48', '+46', '+47');
+  
+  -- Arrays de Nomes e Sobrenomes (20 opções de cada)
+  v_nomes      t_array_texto := t_array_texto('Arthur', 'Felipe', 'Gabriel', 'Philip', 'Vinicius', 'Lucas', 'Mateus', 'Ana', 'Julia', 'Mariana', 'Carlos', 'João', 'Pedro', 'Laura', 'Sofia', 'Liam', 'Emma', 'Oliver', 'Ava', 'Noah');
+  v_sobrenomes t_array_texto := t_array_texto('Silva', 'Santos', 'Oliveira', 'Souza', 'Rodrigues', 'Ferreira', 'Alves', 'Pereira', 'Lima', 'Gomes', 'Costa', 'Ribeiro', 'Martins', 'Carvalho', 'Almeida', 'Smith', 'Johnson', 'Williams', 'Brown', 'Jones');
+  
+  -- Variáveis auxiliares para os sorteios
+  v_idx_pais      NUMBER;
+  v_idx_nome      NUMBER;
+  v_idx_sobrenome NUMBER;
+  v_data_nasc     DATE;
+  v_cod_regiao    VARCHAR2(5);
+  v_data_emissao  DATE;
+  v_data_validade DATE;
+
   v_cred_max     Pessoa.credencial_FIA%TYPE;
   v_cred_lewis   Pessoa.credencial_FIA%TYPE;
   v_cred_charles Pessoa.credencial_FIA%TYPE;
@@ -141,6 +164,89 @@ INSERT INTO Patrocinador (LEI, nome_empresa, pais_empresa)
 INSERT INTO Temporada (ano) VALUES (2024);
 INSERT INTO Temporada (ano) VALUES (2025);
 INSERT INTO Temporada (ano) VALUES (2026);
+
+
+
+
+-- ==========================================
+-- 7. ENTIDADE: Pessoa (GERAÇÃO EM MASSA COM DADOS 100% RANDÔMICOS)
+-- ==========================================
+    FOR eq IN (SELECT nome_equipe FROM Equipe) LOOP
+        
+        FOR i IN 1..5 LOOP
+            -- Sorteia Nomes e Países
+            v_idx_nome      := TRUNC(DBMS_RANDOM.VALUE(1, 21));
+            v_idx_sobrenome := TRUNC(DBMS_RANDOM.VALUE(1, 21));
+            v_idx_pais      := TRUNC(DBMS_RANDOM.VALUE(1, 21));
+            
+            -- Combina o nome completo
+            v_nome_gerado := v_nomes(v_idx_nome) || ' ' || v_sobrenomes(v_idx_sobrenome);
+            
+            -- Sorteios de Datas e Números
+            v_data_nasc  := TO_DATE('1970-01-01', 'YYYY-MM-DD') + TRUNC(DBMS_RANDOM.VALUE(0, 9125));
+            v_cod_regiao := TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10, 99)));
+            
+            -- Sorteia a emissão do passaporte para algum dia nos últimos 5 anos
+            v_data_emissao  := TO_DATE('2019-01-01', 'YYYY-MM-DD') + TRUNC(DBMS_RANDOM.VALUE(0, 1825));
+            v_data_validade := ADD_MONTHS(v_data_emissao, 120); -- Adiciona 10 anos exatos à emissão
+            
+            INSERT INTO Pessoa (credencial_FIA, nome, data_nascimento) 
+            VALUES (seq_credencial_fia.NEXTVAL, v_nome_gerado, v_data_nasc) 
+            RETURNING credencial_FIA INTO v_cred;
+            
+            INSERT INTO Telefone (codigo_pais, codigo_regiao, fone, credencial_FIA_pessoa) 
+            VALUES (v_ddis(v_idx_pais), v_cod_regiao, TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(100000000, 999999999))), v_cred);
+            
+            INSERT INTO Passaporte (numero, pais_emissor, credencial_FIA_pessoa, nome_registrado, data_emissao, data_validade) 
+            VALUES (DBMS_RANDOM.STRING('X', 8), v_paises(v_idx_pais), v_cred, v_nome_gerado, v_data_emissao, v_data_validade);
+        END LOOP;
+        
+        FOR i IN 1..10 LOOP
+            v_idx_nome      := TRUNC(DBMS_RANDOM.VALUE(1, 21));
+            v_idx_sobrenome := TRUNC(DBMS_RANDOM.VALUE(1, 21));
+            v_idx_pais      := TRUNC(DBMS_RANDOM.VALUE(1, 21));
+            
+            v_nome_gerado := v_nomes(v_idx_nome) || ' ' || v_sobrenomes(v_idx_sobrenome);
+            
+            v_data_nasc  := TO_DATE('1975-01-01', 'YYYY-MM-DD') + TRUNC(DBMS_RANDOM.VALUE(0, 9125));
+            v_cod_regiao := TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10, 99)));
+            v_data_emissao  := TO_DATE('2019-01-01', 'YYYY-MM-DD') + TRUNC(DBMS_RANDOM.VALUE(0, 1825));
+            v_data_validade := ADD_MONTHS(v_data_emissao, 120);
+            
+            INSERT INTO Pessoa (credencial_FIA, nome, data_nascimento) 
+            VALUES (seq_credencial_fia.NEXTVAL, v_nome_gerado, v_data_nasc) 
+            RETURNING credencial_FIA INTO v_cred;
+            
+            INSERT INTO Telefone (codigo_pais, codigo_regiao, fone, credencial_FIA_pessoa) 
+            VALUES (v_ddis(v_idx_pais), v_cod_regiao, TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(100000000, 999999999))), v_cred);
+            
+            INSERT INTO Passaporte (numero, pais_emissor, credencial_FIA_pessoa, nome_registrado, data_emissao, data_validade) 
+            VALUES (DBMS_RANDOM.STRING('X', 8), v_paises(v_idx_pais), v_cred, v_nome_gerado, v_data_emissao, v_data_validade);
+        END LOOP;
+        
+        FOR i IN 1..15 LOOP
+            v_idx_nome      := TRUNC(DBMS_RANDOM.VALUE(1, 21));
+            v_idx_sobrenome := TRUNC(DBMS_RANDOM.VALUE(1, 21));
+            v_idx_pais      := TRUNC(DBMS_RANDOM.VALUE(1, 21));
+            
+            v_nome_gerado := v_nomes(v_idx_nome) || ' ' || v_sobrenomes(v_idx_sobrenome);
+            
+            v_data_nasc  := TO_DATE('1980-01-01', 'YYYY-MM-DD') + TRUNC(DBMS_RANDOM.VALUE(0, 9125));
+            v_cod_regiao := TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10, 99)));
+            v_data_emissao  := TO_DATE('2019-01-01', 'YYYY-MM-DD') + TRUNC(DBMS_RANDOM.VALUE(0, 1825));
+            v_data_validade := ADD_MONTHS(v_data_emissao, 120);
+            
+            INSERT INTO Pessoa (credencial_FIA, nome, data_nascimento) 
+            VALUES (seq_credencial_fia.NEXTVAL, v_nome_gerado, v_data_nasc) 
+            RETURNING credencial_FIA INTO v_cred;
+            
+            INSERT INTO Telefone (codigo_pais, codigo_regiao, fone, credencial_FIA_pessoa) 
+            VALUES (v_ddis(v_idx_pais), v_cod_regiao, TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(100000000, 999999999))), v_cred);
+            
+            INSERT INTO Passaporte (numero, pais_emissor, credencial_FIA_pessoa, nome_registrado, data_emissao, data_validade) 
+            VALUES (DBMS_RANDOM.STRING('X', 8), v_paises(v_idx_pais), v_cred, v_nome_gerado, v_data_emissao, v_data_validade);
+        END LOOP;        
+    END LOOP;
 
   COMMIT;
 END;
