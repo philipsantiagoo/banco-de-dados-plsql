@@ -2,8 +2,6 @@
 -- POVOAMENTO PARTE 1: FUNDAÇÃO 
 -- Tabelas: Pessoa, Telefone, Passaporte, Equipe, Patrocinador, Temporada
 -- =================================================================
-
--- 
 DECLARE
   v_cred_max     Pessoa.credencial_FIA%TYPE;
   v_cred_lewis   Pessoa.credencial_FIA%TYPE;
@@ -63,68 +61,68 @@ INSERT INTO Patrocinador (LEI, nome_empresa, pais_empresa) VALUES ('PET770006M94
 -- 3. ENTIDADE: Pessoa (Figuras Reais)
 -- ==========================================
 -- Chefes e Pilotos de todas as equipes e da FIA
-FOR p IN (
+FOR person IN (
     -- Adicionamos uma segunda coluna chamada 'dt' (Data)
-    SELECT 'Christian Horner'   AS n, '1973-11-16' AS dt FROM DUAL UNION ALL
-    SELECT 'Max Verstappen'     AS n, '1997-09-30' AS dt FROM DUAL UNION ALL
-    SELECT 'Sergio Perez'       AS n, '1990-01-26' AS dt FROM DUAL UNION ALL
+    SELECT 'Christian Horner'   AS full_name, '1973-11-16' AS dt FROM DUAL UNION ALL
+    SELECT 'Max Verstappen'     AS full_name, '1997-09-30' AS dt FROM DUAL UNION ALL
+    SELECT 'Sergio Perez'       AS full_name, '1990-01-26' AS dt FROM DUAL UNION ALL
 
-    SELECT 'Frederic Vasseur'   AS n, '1968-05-28' AS dt FROM DUAL UNION ALL
-    SELECT 'Lewis Hamilton'     AS n, '1985-01-07' AS dt FROM DUAL UNION ALL
-    SELECT 'Charles Leclerc'    AS n, '1997-10-16' AS dt FROM DUAL UNION ALL
+    SELECT 'Frederic Vasseur'   AS full_name, '1968-05-28' AS dt FROM DUAL UNION ALL
+    SELECT 'Lewis Hamilton'     AS full_name, '1985-01-07' AS dt FROM DUAL UNION ALL
+    SELECT 'Charles Leclerc'    AS full_name, '1997-10-16' AS dt FROM DUAL UNION ALL
 
-    SELECT 'Toto Wolff'         AS n, '1972-01-12' AS dt FROM DUAL UNION ALL
-    SELECT 'George Russell'     AS n, '1998-02-15' AS dt FROM DUAL UNION ALL
-    SELECT 'Kimi Antonelli'     AS n, '2006-08-25' AS dt FROM DUAL UNION ALL
+    SELECT 'Toto Wolff'         AS full_name, '1972-01-12' AS dt FROM DUAL UNION ALL
+    SELECT 'George Russell'     AS full_name, '1998-02-15' AS dt FROM DUAL UNION ALL
+    SELECT 'Kimi Antonelli'     AS full_name, '2006-08-25' AS dt FROM DUAL UNION ALL
 
-    SELECT 'Andrea Stella'      AS n, '1971-02-22' AS dt FROM DUAL UNION ALL
-    SELECT 'Lando Norris'       AS n, '1999-11-13' AS dt FROM DUAL UNION ALL
-    SELECT 'Oscar Piastri'      AS n, '2001-04-06' AS dt FROM DUAL UNION ALL
+    SELECT 'Andrea Stella'      AS full_name, '1971-02-22' AS dt FROM DUAL UNION ALL
+    SELECT 'Lando Norris'       AS full_name, '1999-11-13' AS dt FROM DUAL UNION ALL
+    SELECT 'Oscar Piastri'      AS full_name, '2001-04-06' AS dt FROM DUAL UNION ALL
 
-    SELECT 'Mike Krack'         AS n, '1972-03-18' AS dt FROM DUAL UNION ALL
-    SELECT 'Fernando Alonso'    AS n, '1981-07-29' AS dt FROM DUAL UNION ALL
-    SELECT 'Lance Stroll'       AS n, '1998-10-29' AS dt FROM DUAL UNION ALL
+    SELECT 'Mike Krack'         AS full_name, '1972-03-18' AS dt FROM DUAL UNION ALL
+    SELECT 'Fernando Alonso'    AS full_name, '1981-07-29' AS dt FROM DUAL UNION ALL
+    SELECT 'Lance Stroll'       AS full_name, '1998-10-29' AS dt FROM DUAL UNION ALL
 
-    SELECT 'Oliver Oakes'       AS n, '1988-01-11' AS dt FROM DUAL UNION ALL
-    SELECT 'Pierre Gasly'       AS n, '1996-02-07' AS dt FROM DUAL UNION ALL
-    SELECT 'Jack Doohan'        AS n, '2003-01-20' AS dt FROM DUAL UNION ALL
+    SELECT 'Oliver Oakes'       AS full_name, '1988-01-11' AS dt FROM DUAL UNION ALL
+    SELECT 'Pierre Gasly'       AS full_name, '1996-02-07' AS dt FROM DUAL UNION ALL
+    SELECT 'Jack Doohan'        AS full_name, '2003-01-20' AS dt FROM DUAL UNION ALL
 
-    SELECT 'James Vowles'       AS n, '1979-06-20' AS dt FROM DUAL UNION ALL
-    SELECT 'Alex Albon'         AS n, '1996-03-23' AS dt FROM DUAL UNION ALL
-    SELECT 'Carlos Sainz'       AS n, '1994-09-01' AS dt FROM DUAL UNION ALL
+    SELECT 'James Vowles'       AS full_name, '1979-06-20' AS dt FROM DUAL UNION ALL
+    SELECT 'Alex Albon'         AS full_name, '1996-03-23' AS dt FROM DUAL UNION ALL
+    SELECT 'Carlos Sainz'       AS full_name, '1994-09-01' AS dt FROM DUAL UNION ALL
 
-    SELECT 'Laurent Mekies'     AS n, '1977-04-28' AS dt FROM DUAL UNION ALL
-    SELECT 'Yuki Tsunoda'       AS n, '2000-05-11' AS dt FROM DUAL UNION ALL
-    SELECT 'Liam Lawson'        AS n, '2002-02-11' AS dt FROM DUAL UNION ALL
+    SELECT 'Laurent Mekies'     AS full_name, '1977-04-28' AS dt FROM DUAL UNION ALL
+    SELECT 'Yuki Tsunoda'       AS full_name, '2000-05-11' AS dt FROM DUAL UNION ALL
+    SELECT 'Liam Lawson'        AS full_name, '2002-02-11' AS dt FROM DUAL UNION ALL
 
-    SELECT 'Ayao Komatsu'       AS n, '1976-01-28' AS dt FROM DUAL UNION ALL
-    SELECT 'Esteban Ocon'       AS n, '1996-09-17' AS dt FROM DUAL UNION ALL
-    SELECT 'Oliver Bearman'     AS n, '2005-05-08' AS dt FROM DUAL UNION ALL
+    SELECT 'Ayao Komatsu'       AS full_name, '1976-01-28' AS dt FROM DUAL UNION ALL
+    SELECT 'Esteban Ocon'       AS full_name, '1996-09-17' AS dt FROM DUAL UNION ALL
+    SELECT 'Oliver Bearman'     AS full_name, '2005-05-08' AS dt FROM DUAL UNION ALL
 
-    SELECT 'Mattia Binotto'     AS n, '1969-11-03' AS dt FROM DUAL UNION ALL
-    SELECT 'Nico Hulkenberg'    AS n, '1987-08-19' AS dt FROM DUAL UNION ALL
-    SELECT 'Gabriel Bortoleto'  AS n, '2004-10-14' AS dt FROM DUAL UNION ALL
+    SELECT 'Mattia Binotto'     AS full_name, '1969-11-03' AS dt FROM DUAL UNION ALL
+    SELECT 'Nico Hulkenberg'    AS full_name, '1987-08-19' AS dt FROM DUAL UNION ALL
+    SELECT 'Gabriel Bortoleto'  AS full_name, '2004-10-14' AS dt FROM DUAL UNION ALL
 
-    SELECT 'Michael Andretti'   AS n, '1962-10-05' AS dt FROM DUAL UNION ALL
-    SELECT 'Colton Herta'       AS n, '2000-03-30' AS dt FROM DUAL UNION ALL
-    SELECT 'Logan Sargeant'     AS n, '2000-12-31' AS dt FROM DUAL UNION ALL
+    SELECT 'Michael Andretti'   AS full_name, '1962-10-05' AS dt FROM DUAL UNION ALL
+    SELECT 'Colton Herta'       AS full_name, '2000-03-30' AS dt FROM DUAL UNION ALL
+    SELECT 'Logan Sargeant'     AS full_name, '2000-12-31' AS dt FROM DUAL UNION ALL
 
-    SELECT 'Niels Wittich'      AS n, '1968-07-10' AS dt FROM DUAL UNION ALL
-    SELECT 'Fabiana Flosi'      AS n, '1988-03-25' AS dt FROM DUAL
+    SELECT 'Niels Wittich'      AS full_name, '1968-07-10' AS dt FROM DUAL UNION ALL
+    SELECT 'Fabiana Flosi'      AS full_name, '1988-03-25' AS dt FROM DUAL
 ) LOOP
     -- Insere a figura real e captura o ID gerado na variável v_temp_cred
     INSERT INTO Pessoa (credencial_FIA, nome, data_nascimento)
-    VALUES (seq_credencial_fia.NEXTVAL, p.n, TO_DATE(p.dt, 'YYYY-MM-DD'))
+    VALUES (seq_credencial_fia.NEXTVAL, person.full_name, TO_DATE(person.dt, 'YYYY-MM-DD'))
     RETURNING credencial_FIA INTO v_temp_cred;
 
     -- Gera um Telefone Aleatório para o Piloto/Chefe
     INSERT INTO Telefone (codigo_pais, codigo_regiao, fone, credencial_FIA_pessoa) 
-    VALUES ('+44', '11', TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(100000000, 999999999))), v_temp_cred);
+    VALUES ('+' || TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(0, 255))), TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(0, 255))), TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(100000000, 999999999))), v_temp_cred);
 
     -- Gera um Passaporte Aleatório para o Piloto/Chefe (Ex: 'A8B39X1Q')
     INSERT INTO Passaporte (numero, pais_emissor, credencial_FIA_pessoa, nome_registrado, data_emissao, data_validade) 
-    VALUES (DBMS_RANDOM.STRING('X', 8), 'Reino Unido', v_temp_cred, p.n, TO_DATE('2022-01-01','YYYY-MM-DD'), TO_DATE('2032-01-01','YYYY-MM-DD'));
-END LOOP;
+    VALUES (DBMS_RANDOM.STRING('X', 8), 'Reino Unido', v_temp_cred, person.full_name, TO_DATE('2022-01-01','YYYY-MM-DD'), TO_DATE('2032-01-01','YYYY-MM-DD'));
+END LOOP;                               -- Should also be random
 
 
 
