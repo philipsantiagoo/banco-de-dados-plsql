@@ -47,14 +47,30 @@ CREATE TABLE Passaporte(
 
 
 
-CREATE TABLE Equipe(
-    nome_equipe VARCHAR2(50) NOT NULL,
-    cidade      VARCHAR2(50) NOT NULL,
-    pais        VARCHAR2(50) NOT NULL,
+CREATE SEQUENCE seq_localidade
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE
+    NOCYCLE;
 
-    CONSTRAINT pk_equipe PRIMARY KEY(nome_equipe)
+CREATE TABLE Localidade(
+    id_localidade NUMBER(10)   NOT NULL,
+    cidade        VARCHAR2(50) NOT NULL,
+    estado        VARCHAR2(50),         -- Alguns países não possuem "estado", então pode aceitar NULL
+    pais          VARCHAR2(50) NOT NULL,
+
+    CONSTRAINT pk_localidade PRIMARY KEY(id_localidade)
 );
 
+
+CREATE TABLE Equipe(
+    nome_equipe   VARCHAR2(50) NOT NULL,
+    id_localidade NUMBER(10)   NOT NULL,
+
+    CONSTRAINT pk_equipe PRIMARY KEY(nome_equipe),
+    CONSTRAINT fk_equipe_localidade FOREIGN KEY(id_localidade)
+        REFERENCES Localidade(id_localidade)
+);
 
 
 CREATE TABLE Funcionario_FIA(

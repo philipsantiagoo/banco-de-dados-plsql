@@ -45,12 +45,19 @@ BEGIN
   END LOOP;
 
 -- 2. ENTIDADE: Equipe
-  INSERT INTO Equipe VALUES ('Oracle Red Bull Racing', 'Milton Keynes', 'Reino Unido');
-  INSERT INTO Equipe VALUES ('Scuderia Ferrari', 'Maranello', 'Itália');
-  INSERT INTO Equipe VALUES ('Mercedes-AMG Petronas', 'Brackley', 'Reino Unido');
-  INSERT INTO Equipe VALUES ('McLaren Formula 1 Team', 'Woking', 'Reino Unido');
+  INSERT INTO Localidade (id_localidade, cidade, estado, pais) VALUES (seq_localidade.NEXTVAL, 'Milton Keynes', 'Buckinghamshire', 'Reino Unido');
+  INSERT INTO Equipe (nome_equipe, id_localidade) VALUES ('Oracle Red Bull Racing', seq_localidade.CURRVAL);
 
--- 3. ENTIDADE: Patrocinador
+  INSERT INTO Localidade (id_localidade, cidade, estado, pais) VALUES (seq_localidade.NEXTVAL, 'Maranello', 'Emilia-Romagna', 'Itália');
+  INSERT INTO Equipe (nome_equipe, id_localidade) VALUES ('Scuderia Ferrari', seq_localidade.CURRVAL);
+
+  INSERT INTO Localidade (id_localidade, cidade, estado, pais) VALUES (seq_localidade.NEXTVAL, 'Brackley', 'Northamptonshire', 'Reino Unido');
+  INSERT INTO Equipe (nome_equipe, id_localidade) VALUES ('Mercedes-AMG Petronas', seq_localidade.CURRVAL);
+
+  INSERT INTO Localidade (id_localidade, cidade, estado, pais) VALUES (seq_localidade.NEXTVAL, 'Woking', 'Surrey', 'Reino Unido');
+  INSERT INTO Equipe (nome_equipe, id_localidade) VALUES ('McLaren Formula 1 Team', seq_localidade.CURRVAL);
+  
+  -- 3. ENTIDADE: Patrocinador
   INSERT INTO Patrocinador VALUES ('5493006M94867W22V98', 'Oracle Corporation', 'EUA');
   INSERT INTO Patrocinador VALUES ('RE8900006M94867W22V11', 'Santander', 'Espanha');
   INSERT INTO Patrocinador VALUES ('PET770006M94867W22V33', 'Petronas', 'Malásia');
