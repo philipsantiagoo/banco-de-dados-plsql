@@ -1,0 +1,385 @@
+-- ==========================================
+-- SEQUÊNCIAS DO SISTEMA
+-- ==========================================
+CREATE SEQUENCE seq_credencial_fia
+    START WITH 1000     -- A primeira credencial será 1000
+    INCREMENT BY 1      -- Vai pular de 1 em 1
+    NOCACHE             -- Evita pular números caso o banco reinicie
+    NOCYCLE;            -- A sequência não recomeça quando atingir o limite
+
+    
+CREATE TABLE Pessoa(
+    credencial_FIA  VARCHAR2(50)  NOT NULL,
+    nome            VARCHAR2(150) NOT NULL,
+    data_nascimento DATE          NOT NULL,
+
+    CONSTRAINT pk_pessoa PRIMARY KEY(credencial_FIA)
+);
+
+
+
+CREATE TABLE Telefone(
+    codigo_pais           VARCHAR2(10)  NOT NULL,
+    codigo_regiao         VARCHAR2(10)  NOT NULL,
+    fone                  VARCHAR2(20)  NOT NULL,
+    credencial_FIA_pessoa VARCHAR2(50)  NOT NULL,
+
+    CONSTRAINT pk_telefone PRIMARY KEY(codigo_pais, codigo_regiao, fone, credencial_FIA_pessoa),        -- LEMBRAR DE ATUALIZAR ISSO NO DIAGRAMA RELACIONAL (isso foi comentado pelo monitor)
+    CONSTRAINT fk_telefone_pessoa FOREIGN KEY(credencial_FIA_pessoa)
+        REFERENCES Pessoa(credencial_FIA)
+);
+
+
+
+CREATE TABLE Passaporte(
+    numero                VARCHAR2(50)  NOT NULL,
+    pais_emissor          VARCHAR2(50)  NOT NULL,
+    credencial_FIA_pessoa VARCHAR2(50)  NOT NULL,
+    nome_registrado       VARCHAR2(150) NOT NULL,
+    data_emissao          DATE          NOT NULL,
+    data_validade         DATE          NOT NULL,
+
+    CONSTRAINT pk_passaporte PRIMARY KEY(numero, pais_emissor),
+    CONSTRAINT fk_passaporte_pessoa FOREIGN KEY(credencial_FIA_pessoa)
+        REFERENCES Pessoa(credencial_FIA),
+    CONSTRAINT ck_passaporte_data_validade CHECK(data_validade > data_emissao)
+);
+
+
+
+CREATE SEQUENCE seq_localidade
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE
+    NOCYCLE;
+
+CREATE TABLE Localidade(
+    id_localidade NUMBER(10)   NOT NULL,
+    cidade        VARCHAR2(50) NOT NULL,
+    estado        VARCHAR2(50),         -- Alguns países não possuem "estado", então pode aceitar NULL
+    pais          VARCHAR2(50) NOT NULL,
+
+    CONSTRAINT pk_localidade PRIMARY KEY(id_localidade)
+);
+
+
+CREATE TABLE Equipe(
+    nome_equipe   VARCHAR2(50) NOT NULL,
+    id_localidade NUMBER(10)   NOT NULL,
+
+    CONSTRAINT pk_equipe PRIMARY KEY(nome_equipe),
+    CONSTRAINT fk_equipe_localidade FOREIGN KEY(id_localidade)
+        REFERENCES Localidade(id_localidade)
+);
+
+
+CREATE TABLE Funcionario_FIA(
+    credencial_FIA_pessoa VARCHAR2(50) NOT NULL,
+    licenca_staff         VARCHAR2(50) NOT NULL UNIQUE,
+    cargo_exercido        VARCHAR2(50) DEFAULT 'A Definir' NOT NULL,
+
+    CONSTRAINT pk_funcionario_fia PRIMARY KEY(credencial_FIA_pessoa),
+    CONSTRAINT fk_funcionario_fia_pessoa FOREIGN KEY(credencial_FIA_pessoa)
+        REFERENCES Pessoa(credencial_FIA)
+);
+
+
+
+CREATE TABLE Funcionario_equipe(
+    credencial_FIA_pessoa   VARCHAR2(50) NOT NULL,
+    nome_equipe_contratante VARCHAR2(50) NOT NULL,
+    licenca_staff           VARCHAR2(50) NOT NULL UNIQUE,
+    funcao_equipe           VARCHAR2(50) DEFAULT 'A Definir' NOT NULL,
+    departamento            VARCHAR2(50),
+
+    CONSTRAINT pk_funcionario_equipe PRIMARY KEY(credencial_FIA_pessoa),
+    CONSTRAINT fk_funcionario_equipe_pessoa FOREIGN KEY(credencial_FIA_pessoa)
+        REFERENCES Pessoa(credencial_FIA),
+    CONSTRAINT fk_funcionario_equipe_equipe FOREIGN KEY(nome_equipe_contratante)
+        REFERENCES Equipe(nome_equipe)
+);
+
+
+
+CREATE TABLE Engenheiro(
+    credencial_FIA_funcionario VARCHAR2(50) NOT NULL,
+    especialidade              VARCHAR2(50),
+
+    CONSTRAINT pk_engenheiro PRIMARY KEY(credencial_FIA_funcionario),
+    CONSTRAINT fk_engenheiro_funcionario_equipe FOREIGN KEY(credencial_FIA_funcionario)
+        REFERENCES Funcionario_equipe(credencial_FIA_pessoa)
+);
+
+
+
+CREATE TABLE Mecanico(
+    credencial_FIA_funcionario VARCHAR2(50) NOT NULL,
+    posicao_pit_stop           VARCHAR2(50),
+    especialidade              VARCHAR2(50),
+
+    CONSTRAINT pk_mecanico PRIMARY KEY(credencial_FIA_funcionario),
+    CONSTRAINT fk_mecanico_funcionario FOREIGN KEY(credencial_FIA_funcionario)
+        REFERENCES Funcionario_equipe(credencial_FIA_pessoa)
+);
+
+
+
+CREATE TABLE Chefe(
+    credencial_FIA_funcionario VARCHAR2(50) NOT NULL,
+    nome_equipe_liderada       VARCHAR2(50) NOT NULL,
+    data_assuncao_equipe       DATE         NOT NULL,
+    cargo_chefe                VARCHAR2(50) NOT NULL,
+    
+    CONSTRAINT pk_chefe PRIMARY KEY(credencial_FIA_funcionario),
+    CONSTRAINT uk_chefe_equipe UNIQUE(nome_equipe_liderada),
+    CONSTRAINT fk_chefe_funcionario_equipe FOREIGN KEY(credencial_FIA_funcionario)
+        REFERENCES Funcionario_equipe(credencial_FIA_pessoa),
+    CONSTRAINT fk_chefe_equipe FOREIGN KEY(nome_equipe_liderada)
+        REFERENCES Equipe(nome_equipe)
+);
+
+
+
+CREATE TABLE Piloto(
+    credencial_FIA_pessoa VARCHAR2(50) NOT NULL,
+    superlicenca          VARCHAR2(50) NOT NULL UNIQUE,
+
+    CONSTRAINT pk_piloto PRIMARY KEY(credencial_FIA_pessoa),
+    CONSTRAINT fk_piloto_pessoa FOREIGN KEY(credencial_FIA_pessoa)
+        REFERENCES Pessoa(credencial_FIA)
+);
+
+
+
+CREATE TABLE Patrocinador(
+    LEI          VARCHAR2(50)  NOT NULL,
+    nome_empresa VARCHAR2(150) NOT NULL,
+    pais_empresa VARCHAR2(50)  NOT NULL,         
+
+    CONSTRAINT pk_patrocinador PRIMARY KEY(LEI)
+);
+
+
+
+CREATE TABLE Contrato(
+    nome_equipe_patrocinada VARCHAR2(50)  NOT NULL,
+    LEI_patrocinador        VARCHAR2(50)  NOT NULL,
+    data_inicio             DATE          NOT NULL,
+    data_fim                DATE,
+    valor                   NUMBER(15, 2) NOT NULL,
+
+    CONSTRAINT pk_contrato PRIMARY KEY(nome_equipe_patrocinada, LEI_patrocinador, data_inicio),
+    CONSTRAINT fk_contrato_equipe FOREIGN KEY(nome_equipe_patrocinada)
+        REFERENCES Equipe(nome_equipe),
+    CONSTRAINT fk_contrato_patrocinador FOREIGN KEY(LEI_patrocinador)
+        REFERENCES Patrocinador(LEI),
+    CONSTRAINT ck_contrato_datas CHECK(data_fim IS NULL OR data_fim >= data_inicio)
+);
+
+
+
+CREATE TABLE Patrocina(
+    LEI_patrocinador        VARCHAR2(50) NOT NULL,
+    credencial_FIA_piloto   VARCHAR2(50) NOT NULL,
+    data_inicio             DATE         NOT NULL, 
+    data_fim                DATE,
+    valor                   NUMBER(15, 2)NOT NULL,
+
+    CONSTRAINT pk_patrocina PRIMARY KEY(LEI_patrocinador, credencial_FIA_piloto, data_inicio),
+    CONSTRAINT fk_patrocina_patrocinador FOREIGN KEY(LEI_patrocinador)
+        REFERENCES Patrocinador(LEI),
+    CONSTRAINT fk_patrocina_piloto FOREIGN KEY(credencial_FIA_piloto)
+        REFERENCES Piloto(credencial_FIA_pessoa),
+    CONSTRAINT ck_patrocina_datas CHECK(data_fim IS NULL OR data_fim >= data_inicio)
+);
+
+
+-- Vai precisar de um trigger pra validar esse ano futuramente.
+CREATE TABLE Modelo_carro(
+    nome_modelo                VARCHAR2(50) NOT NULL,
+    ano_projeto                NUMBER(4)    NOT NULL,
+    nome_equipe_desenvolvedora VARCHAR2(50) NOT NULL,
+    fabricante_motor           VARCHAR2(50) NOT NULL,
+
+    CONSTRAINT pk_modelo_carro PRIMARY KEY(nome_modelo, ano_projeto),
+    CONSTRAINT fk_modelo_carro_equipe FOREIGN KEY(nome_equipe_desenvolvedora)
+        REFERENCES Equipe(nome_equipe)
+);
+
+
+
+CREATE TABLE Chassi(
+    codigo_chassi      VARCHAR2(20) NOT NULL,
+    nome_modelo        VARCHAR2(50) NOT NULL,
+    ano_projeto_modelo NUMBER(4)    NOT NULL,
+    numero_carro       NUMBER(2)    NOT NULL,
+    status_carro       CHAR(2)      DEFAULT 'AT' NOT NULL,
+
+    CONSTRAINT pk_chassi PRIMARY KEY(codigo_chassi, nome_modelo, ano_projeto_modelo),
+    CONSTRAINT fk_chassi_modelo_carro FOREIGN KEY(nome_modelo, ano_projeto_modelo)
+        REFERENCES Modelo_carro(nome_modelo, ano_projeto)
+);
+
+
+
+CREATE TABLE Temporada(
+    ano NUMBER(4) NOT NULL,
+
+    CONSTRAINT pk_temporada PRIMARY KEY(ano)
+);
+
+
+
+CREATE TABLE Participa_temporada(
+    nome_equipe_participante VARCHAR2(50) NOT NULL,
+    ano_temporada            NUMBER(4)    NOT NULL,
+
+    CONSTRAINT pk_participa_temporada PRIMARY KEY(nome_equipe_participante, ano_temporada),
+    CONSTRAINT fk_participa_temporada_equipe FOREIGN KEY(nome_equipe_participante)
+        REFERENCES Equipe(nome_equipe),
+    CONSTRAINT fk_participa_temporada_temporada FOREIGN KEY(ano_temporada)
+        REFERENCES Temporada(ano)
+);
+
+
+
+CREATE TABLE Grande_premio(
+    nome_gp       VARCHAR2(50)    NOT NULL,
+    ano_temporada NUMBER(4)       NOT NULL,
+    pais          VARCHAR2(50)    NOT NULL,
+    numero_voltas NUMBER(3)       NOT NULL,
+    circuito      VARCHAR2(50)    NOT NULL,
+
+    CONSTRAINT pk_grande_premio PRIMARY KEY(nome_gp, ano_temporada),
+    CONSTRAINT fk_grande_premio_temporada FOREIGN KEY(ano_temporada)
+        REFERENCES Temporada(ano)
+);
+
+
+
+CREATE TABLE Sessao(
+    tipo_sessao VARCHAR2(50) NOT NULL,
+    nome_gp     VARCHAR2(50) NOT NULL,
+    ano_gp      NUMBER(4)    NOT NULL,
+    data_sessao DATE         NOT NULL,
+    horario     TIMESTAMP    NOT NULL,
+
+    CONSTRAINT pk_sessao PRIMARY KEY(tipo_sessao, nome_gp, ano_gp),
+    CONSTRAINT fk_sessao_grande_premio FOREIGN KEY(nome_gp, ano_gp)
+        REFERENCES Grande_premio(nome_gp, ano_temporada)
+);
+
+
+
+CREATE TABLE Atua_em(
+    credencial_FIA_funcionario VARCHAR2(50) NOT NULL,
+    tipo_sessao                VARCHAR2(50) NOT NULL,
+    nome_gp                    VARCHAR2(50) NOT NULL,
+    ano_gp                     NUMBER(4)    NOT NULL,
+
+    CONSTRAINT pk_atua_em PRIMARY KEY(credencial_FIA_funcionario, tipo_sessao, nome_gp, ano_gp),
+    CONSTRAINT fk_atua_em_funcionario_fia FOREIGN KEY(credencial_FIA_funcionario)
+        REFERENCES Funcionario_FIA(credencial_FIA_pessoa),
+    CONSTRAINT fk_atua_em_sessao FOREIGN KEY(tipo_sessao, nome_gp, ano_gp)
+        REFERENCES Sessao(tipo_sessao, nome_gp, ano_gp)
+);
+
+
+
+CREATE TABLE Substitui(
+    tipo_sessao                       VARCHAR2(50) NOT NULL,
+    nome_gp                           VARCHAR2(50) NOT NULL,
+    ano_gp                            NUMBER(4)    NOT NULL,
+    credencial_FIA_piloto_substituido VARCHAR2(50) NOT NULL,
+    credencial_FIA_piloto_substituto  VARCHAR2(50) NOT NULL,
+
+    CONSTRAINT pk_substitui PRIMARY KEY(tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto_substituido),
+
+    CONSTRAINT fk_substitui_tipo_sessao FOREIGN KEY(tipo_sessao, nome_gp, ano_gp)
+        REFERENCES Sessao(tipo_sessao, nome_gp, ano_gp),
+
+    CONSTRAINT fk_substitui_piloto_substituido FOREIGN KEY(credencial_FIA_piloto_substituido)
+        REFERENCES Piloto(credencial_FIA_pessoa),
+        
+    CONSTRAINT fk_substitui_piloto_substituto FOREIGN KEY(credencial_FIA_piloto_substituto)
+        REFERENCES Piloto(credencial_FIA_pessoa),
+
+    CONSTRAINT uk_substitui UNIQUE(tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto_substituto)      -- Chave candidata
+);
+
+
+
+CREATE TABLE Participa_sessao (
+    tipo_sessao             VARCHAR2(50)  NOT NULL,
+    nome_gp                 VARCHAR2(50)  NOT NULL,
+    ano_gp                  NUMBER(4)     NOT NULL,
+    credencial_FIA_piloto   VARCHAR2(50)  NOT NULL, 
+    codigo_chassi           VARCHAR2(20)  NOT NULL,
+    nome_modelo             VARCHAR2(50)  NOT NULL,
+    ano_projeto_modelo      NUMBER(4)     NOT NULL,
+    
+    posicao_final           NUMBER(2),              
+    tempo_final             INTERVAL DAY TO SECOND(3), 
+    pontos                  NUMBER(4, 1),          
+    status_participacao     VARCHAR2(20)  NOT NULL, 
+
+    CONSTRAINT pk_participa_sessao PRIMARY KEY(tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto),
+    
+    CONSTRAINT uk_participa_sessao_chassi UNIQUE(tipo_sessao, nome_gp, ano_gp, codigo_chassi, nome_modelo, ano_projeto_modelo),
+
+    CONSTRAINT fk_participa_sessao_sessao FOREIGN KEY(tipo_sessao, nome_gp, ano_gp)
+        REFERENCES Sessao(tipo_sessao, nome_gp, ano_gp),
+        
+    CONSTRAINT fk_participa_sessao_piloto FOREIGN KEY(credencial_FIA_piloto)
+        REFERENCES Piloto(credencial_FIA_pessoa),
+        
+    CONSTRAINT fk_participa_sessao_chassi FOREIGN KEY(codigo_chassi, nome_modelo, ano_projeto_modelo)
+        REFERENCES Chassi(codigo_chassi, nome_modelo, ano_projeto_modelo)
+);
+
+
+
+CREATE TABLE Volta(
+    numero_volta          NUMBER(3)     NOT NULL,
+    tipo_sessao           VARCHAR2(50)  NOT NULL,
+    nome_gp               VARCHAR2(50)  NOT NULL,
+    ano_gp                NUMBER(4)     NOT NULL,
+    credencial_FIA_piloto VARCHAR2(50)  NOT NULL,
+    
+    posicao_piloto        NUMBER(2)     NOT NULL,
+    setor1                INTERVAL DAY TO SECOND(3),
+    setor2                INTERVAL DAY TO SECOND(3),
+    setor3                INTERVAL DAY TO SECOND(3),
+    tempo_volta           INTERVAL DAY TO SECOND(3),
+
+    CONSTRAINT pk_volta PRIMARY KEY(numero_volta, tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto),
+    
+    CONSTRAINT fk_volta_participa FOREIGN KEY(tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto)
+        REFERENCES Participa_sessao(tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto)
+);
+
+
+
+CREATE TABLE Telemetria(
+    timestamp_leitura       TIMESTAMP(3)  NOT NULL,
+    numero_volta            NUMBER(3)     NOT NULL,
+    tipo_sessao             VARCHAR2(50)  NOT NULL,
+    nome_gp                 VARCHAR2(50)  NOT NULL,
+    ano_gp                  NUMBER(4)     NOT NULL,
+    credencial_FIA_piloto   VARCHAR2(50)  NOT NULL,
+    
+    temperatura_pneus       NUMBER(5, 2)  NOT NULL,
+    pressao_pneus           NUMBER(4, 2)  NOT NULL, 
+    porcentagem_bateria_ERS NUMBER(3)     NOT NULL, 
+    rpm                     NUMBER(5)     NOT NULL, 
+    aceleracao              NUMBER(4, 2)  NOT NULL, 
+    velocidade              NUMBER(3)     NOT NULL,
+
+    CONSTRAINT pk_telemetria PRIMARY KEY(timestamp_leitura, numero_volta, tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto),
+    
+    CONSTRAINT fk_telemetria_volta FOREIGN KEY(numero_volta, tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto)
+        REFERENCES Volta(numero_volta, tipo_sessao, nome_gp, ano_gp, credencial_FIA_piloto),
+        
+    CONSTRAINT ck_telemetria_bateria CHECK(porcentagem_bateria_ERS BETWEEN 0 AND 100),
+    CONSTRAINT ck_telemetria_rpm CHECK(rpm >= 0)
+);
