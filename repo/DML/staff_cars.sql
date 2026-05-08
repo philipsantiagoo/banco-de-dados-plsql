@@ -11,16 +11,16 @@ INSERT INTO Funcionario_equipe VALUES((SELECT credencial_FIA FROM Pessoa WHERE n
 
 -- Funcionario_equipe e Chefe
 INSERT INTO Funcionario_equipe VALUES((SELECT credencial_FIA FROM Pessoa WHERE nome = 'Frederic Vasseur'), 'Scuderia Ferrari', 'CH-001', 'Team Principal', NULL);
-INSERT INTO Chefe VALUES((SELECT credencial_FIA FROM Pessoa WHERE nome = 'Frederic Vasseur'), 'Scuderia Ferrari', TO_DATE('1992-03-22', 'YYYY-MM-DD'), 'Chefe');
+INSERT INTO Chefe VALUES((SELECT credencial_FIA FROM Pessoa WHERE nome = 'Frederic Vasseur'), TO_DATE('1992-03-22', 'YYYY-MM-DD'), 'Chefe fodao');
 
 INSERT INTO Funcionario_equipe VALUES((SELECT credencial_FIA FROM Pessoa WHERE nome = 'Andrea Stella'), 'McLaren Formula 1 Team', 'CH-002', 'Team Principal', NULL);
-INSERT INTO Chefe VALUES((SELECT credencial_FIA FROM Pessoa WHERE nome = 'Andrea Stella'), 'McLaren Formula 1 Team', TO_DATE('2005-09-01', 'YYYY-MM-DD'), 'Chefe');
+INSERT INTO Chefe VALUES((SELECT credencial_FIA FROM Pessoa WHERE nome = 'Andrea Stella'), TO_DATE('2005-09-01', 'YYYY-MM-DD'), 'Chefe nao fodao');
 
 INSERT INTO Funcionario_equipe VALUES((SELECT credencial_FIA FROM Pessoa WHERE nome = 'Christian Horner'), 'Oracle Red Bull Racing', 'CH-003', 'Team Principal', NULL);
-INSERT INTO Chefe VALUES((SELECT credencial_FIA FROM Pessoa WHERE nome = 'Christian Horner'), 'Oracle Red Bull Racing', TO_DATE('2023-06-13', 'YYYY-MM-DD'), 'Chefe');
+INSERT INTO Chefe VALUES((SELECT credencial_FIA FROM Pessoa WHERE nome = 'Christian Horner'), TO_DATE('2023-06-13', 'YYYY-MM-DD'), 'Chefe');
 
 INSERT INTO Funcionario_equipe VALUES((SELECT credencial_FIA FROM Pessoa WHERE nome = 'Toto Wolff'), 'Mercedes-AMG Petronas', 'CH-004', 'Team Principal', NULL);
-INSERT INTO Chefe VALUES((SELECT credencial_FIA FROM Pessoa WHERE nome = 'Toto Wolff'), 'Mercedes-AMG Petronas', TO_DATE('2011-02-24', 'YYYY-MM-DD'), 'Chefe');
+INSERT INTO Chefe VALUES((SELECT credencial_FIA FROM Pessoa WHERE nome = 'Toto Wolff'), TO_DATE('2011-02-24', 'YYYY-MM-DD'), 'Chefe chefial');
 
 -- Modelo_carro
 INSERT INTO Modelo_carro VALUES('McQueen', 1993, 'Scuderia Ferrari', 'Latveria Produtos');
