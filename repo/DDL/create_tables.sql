@@ -126,16 +126,14 @@ CREATE TABLE Mecanico(
 
 CREATE TABLE Chefe(
     credencial_FIA_funcionario VARCHAR2(50) NOT NULL,
-    nome_equipe_liderada       VARCHAR2(50) NOT NULL,
     data_assuncao_equipe       DATE         NOT NULL,
     cargo_chefe                VARCHAR2(50) NOT NULL,
     
     CONSTRAINT pk_chefe PRIMARY KEY(credencial_FIA_funcionario),
-    CONSTRAINT uk_chefe_equipe UNIQUE(nome_equipe_liderada),
     CONSTRAINT fk_chefe_funcionario_equipe FOREIGN KEY(credencial_FIA_funcionario)
-        REFERENCES Funcionario_equipe(credencial_FIA_pessoa),
-    CONSTRAINT fk_chefe_equipe FOREIGN KEY(nome_equipe_liderada)
-        REFERENCES Equipe(nome_equipe)
+        REFERENCES Funcionario_equipe(credencial_FIA_pessoa)
+
+    -- Removida a FK "nome_equipe_liderada", uma vez que Chefe é especialização de funcionario e funcionario já têm uma equipe.
 );
 
 
