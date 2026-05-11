@@ -5,6 +5,16 @@ CREATE OR REPLACE PACKAGE PKG_GESTAO_EQUIPE AS
     ---------------------------------------------------------
     -- SEÇÃO 0: TIPOS ESPECIAIS (Público)
     ---------------------------------------------------------
+
+    TYPE rec_equipe_funcionario IS RECORD (
+        nome_equipe         Funcionario_equipe.nome_equipe_contratante%TYPE,
+        credencial_fia      Funcionario_equipe.credencial_FIA_pessoa%TYPE,
+        nome_funcionario    Pessoa.nome%TYPE,
+        funcao              Funcionario_equipe.funcao_equipe%TYPE,
+        departamento        Funcionario_equipe.departamento%TYPE
+    );
+    TYPE t_equipes_funcionarios IS TABLE OF rec_equipe_funcionario INDEX BY BINARY_INTEGER;
+
     TYPE rec_contagem_funcao      IS RECORD (nome_cargo VARCHAR2(100), quantidade NUMBER);
     TYPE tipo_tabela_contagem     IS TABLE OF rec_contagem_funcao INDEX BY PLS_INTEGER;
     TYPE tipo_tabela_funcionarios IS TABLE OF Funcionario_equipe%ROWTYPE INDEX BY PLS_INTEGER;
@@ -103,33 +113,17 @@ CREATE OR REPLACE PACKAGE PKG_GESTAO_EQUIPE AS
     FUNCTION fn_listar_mecanicos(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_mecanicos;
     FUNCTION fn_listar_chefes(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_chefes;
 
-<<<<<<< implementacao_join
-
-    ---------------------------------------------------------
-    -- LISTAR EQUIPES COM FUNCIONÁRIOS (RIGHT OUTER JOIN)
-    -- Retorna todas as equipes com seus funcionários
-    -- Inclui equipes sem funcionários atribuídos
-    -- Prioridade: Alta
-    ---------------------------------------------------------
-
-    TYPE rec_equipe_funcionario IS RECORD (
-        nome_equipe         Funcionario_equipe.nome_equipe_contratante%TYPE,
-        credencial_fia      Funcionario_equipe.credencial_FIA_pessoa%TYPE,
-        nome_funcionario    Pessoa.nome%TYPE,
-        funcao              Funcionario_equipe.funcao_equipe%TYPE,
-        departamento        Funcionario_equipe.departamento%TYPE
-    );
-    TYPE t_equipes_funcionarios IS TABLE OF rec_equipe_funcionario INDEX BY BINARY_INTEGER;
-
-    FUNCTION fn_listar_equipes_com_funcionarios(
-        p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL
-    ) RETURN t_equipes_funcionarios;
-=======
     FUNCTION fn_agrupar_por_funcao_geral(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem;
     FUNCTION fn_agrupar_por_especialidade_eng(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem;
     FUNCTION fn_agrupar_por_posicao_mec(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem;
     FUNCTION fn_agrupar_por_cargo_chefe(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem;
->>>>>>> develop
+
+    ---------------------------------------------------------
+    -- LISTAR EQUIPES COM FUNCIONÁRIOS (RIGHT OUTER JOIN)
+    -- Retorna todas as equipes com seus funcionários, inclui equipes sem funcionários atribuídos
+    ---------------------------------------------------------
+    FUNCTION fn_listar_equipes_com_funcionarios(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN t_equipes_funcionarios;
+
 
 END PKG_GESTAO_EQUIPE;
 /
@@ -501,7 +495,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAO_EQUIPE AS
     ---------------------------------------------------------
     -- LISTAR EQUIPES COM FUNCIONÁRIOS (RIGHT OUTER JOIN)
     ---------------------------------------------------------
-
     FUNCTION fn_listar_equipes_com_funcionarios(
         p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL
     ) RETURN t_equipes_funcionarios
