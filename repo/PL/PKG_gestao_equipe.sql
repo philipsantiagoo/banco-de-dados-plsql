@@ -103,10 +103,33 @@ CREATE OR REPLACE PACKAGE PKG_GESTAO_EQUIPE AS
     FUNCTION fn_listar_mecanicos(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_mecanicos;
     FUNCTION fn_listar_chefes(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_chefes;
 
+<<<<<<< implementacao_join
+
+    ---------------------------------------------------------
+    -- LISTAR EQUIPES COM FUNCIONÁRIOS (RIGHT OUTER JOIN)
+    -- Retorna todas as equipes com seus funcionários
+    -- Inclui equipes sem funcionários atribuídos
+    -- Prioridade: Alta
+    ---------------------------------------------------------
+
+    TYPE rec_equipe_funcionario IS RECORD (
+        nome_equipe         Funcionario_equipe.nome_equipe_contratante%TYPE,
+        credencial_fia      Funcionario_equipe.credencial_FIA_pessoa%TYPE,
+        nome_funcionario    Pessoa.nome%TYPE,
+        funcao              Funcionario_equipe.funcao_equipe%TYPE,
+        departamento        Funcionario_equipe.departamento%TYPE
+    );
+    TYPE t_equipes_funcionarios IS TABLE OF rec_equipe_funcionario INDEX BY BINARY_INTEGER;
+
+    FUNCTION fn_listar_equipes_com_funcionarios(
+        p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL
+    ) RETURN t_equipes_funcionarios;
+=======
     FUNCTION fn_agrupar_por_funcao_geral(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem;
     FUNCTION fn_agrupar_por_especialidade_eng(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem;
     FUNCTION fn_agrupar_por_posicao_mec(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem;
     FUNCTION fn_agrupar_por_cargo_chefe(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem;
+>>>>>>> develop
 
 END PKG_GESTAO_EQUIPE;
 /
@@ -473,6 +496,49 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAO_EQUIPE AS
         
         RETURN v_tabela;
     END fn_agrupar_por_cargo_chefe;
+
+
+    ---------------------------------------------------------
+    -- LISTAR EQUIPES COM FUNCIONÁRIOS (RIGHT OUTER JOIN)
+    ---------------------------------------------------------
+
+    FUNCTION fn_listar_equipes_com_funcionarios(
+        p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL
+    ) RETURN t_equipes_funcionarios
+    IS
+        v_resultado t_equipes_funcionarios;
+        v_idx       PLS_INTEGER := 1;
+    BEGIN
+        -- RIGHT OUTER JOIN: Todas as equipes aparecem, mesmo aquelas sem funcionários
+        FOR r IN (
+            SELECT 
+                fk.nome_equipe_contratante,
+                fk.credencial_FIA_pessoa,
+                pes.nome,
+                fk.funcao_equipe,
+                fk.departamento
+            FROM Funcionario_equipe fk
+            RIGHT OUTER JOIN (
+                SELECT DISTINCT nome_equipe_contratante FROM Funcionario_equipe
+                WHERE (p_nome_equipe IS NULL OR nome_equipe_contratante = p_nome_equipe)
+            ) eq ON fk.nome_equipe_contratante = eq.nome_equipe_contratante
+            LEFT OUTER JOIN Pessoa pes ON fk.credencial_FIA_pessoa = pes.credencial_FIA
+            ORDER BY eq.nome_equipe_contratante, pes.nome
+        ) LOOP
+            v_resultado(v_idx).nome_equipe         := r.nome_equipe_contratante;
+            v_resultado(v_idx).credencial_fia      := r.credencial_FIA_pessoa;
+            v_resultado(v_idx).nome_funcionario    := r.nome;
+            v_resultado(v_idx).funcao              := r.funcao_equipe;
+            v_resultado(v_idx).departamento        := r.departamento;
+            v_idx := v_idx + 1;
+        END LOOP;
+
+        RETURN v_resultado;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE_APPLICATION_ERROR(-20019, 'Erro ao listar equipes com funcionários: ' || SQLERRM);
+    END fn_listar_equipes_com_funcionarios;
 
 
 END PKG_GESTAO_EQUIPE;

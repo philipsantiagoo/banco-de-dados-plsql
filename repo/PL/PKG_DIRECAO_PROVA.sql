@@ -38,6 +38,21 @@ CREATE OR REPLACE PACKAGE PKG_DIRECAO_PROVA AS
         p_ano IN Grande_premio.ano_temporada%TYPE
     ) RETURN t_podio;
 
+    -- Tipo para cruzamento de pilotos e chassis
+    TYPE rec_piloto_chassis IS RECORD (
+        credencial_piloto      Piloto.credencial_FIA_pessoa%TYPE,
+        nome_piloto            Pessoa.nome%TYPE,
+        codigo_chassi          Chassi.codigo_chassi%TYPE,
+        nome_modelo            Chassi.nome_modelo%TYPE,
+        ano_projeto            Chassi.ano_projeto_modelo%TYPE
+    );
+    TYPE t_pilotos_chassis IS TABLE OF rec_piloto_chassis INDEX BY BINARY_INTEGER;
+
+    -- Função para cruzar dados de pilotos e chassis (FULL OUTER JOIN)
+    FUNCTION fn_cruzar_pilotos_chassis(
+        p_nome_gp IN Participa_sessao.nome_gp%TYPE DEFAULT NULL
+    ) RETURN t_pilotos_chassis;
+
 END PKG_DIRECAO_PROVA;
 /
 
@@ -166,6 +181,59 @@ CREATE OR REPLACE PACKAGE BODY PKG_DIRECAO_PROVA AS
 
         RETURN v_podio;
     END fn_listar_podio;
+
+
+    -- ==========================================
+    -- CRUZAR PILOTOS E CHASSIS (FULL OUTER JOIN)
+    -- Retorna a relação entre pilotos e chassis
+    -- Inclui pilotos sem chassis e chassis sem pilotos
+    -- ==========================================
+
+    FUNCTION fn_cruzar_pilotos_chassis(
+        p_nome_gp IN Participa_sessao.nome_gp%TYPE DEFAULT NULL
+    ) RETURN t_pilotos_chassis
+    IS
+        v_resultado t_pilotos_chassis;
+        v_idx       BINARY_INTEGER := 1;
+    BEGIN
+        -- FULL OUTER JOIN: Cruzamento completo de pilotos e chassis
+        -- Inclui pilotos sem chassis registrado e chassis sem pilotos
+        FOR r IN (
+            SELECT 
+                pi.credencial_FIA_pessoa,
+                pes.nome,
+                c.codigo_chassi,
+                c.nome_modelo,
+                c.ano_projeto_modelo
+            FROM Piloto pi
+            FULL OUTER JOIN Pessoa pes ON pi.credencial_FIA_pessoa = pes.credencial_FIA
+            FULL OUTER JOIN (
+                SELECT DISTINCT credencial_FIA_piloto, codigo_chassi, nome_modelo, ano_projeto_modelo
+                FROM Participa_sessao
+                WHERE p_nome_gp IS NULL OR nome_gp = p_nome_gp
+            ) ps ON pi.credencial_FIA_pessoa = ps.credencial_FIA_piloto
+            FULL OUTER JOIN Chassi c ON ps.codigo_chassi = c.codigo_chassi
+                                    AND ps.nome_modelo = c.nome_modelo
+                                    AND ps.ano_projeto_modelo = c.ano_projeto_modelo
+            ORDER BY pes.nome, c.codigo_chassi
+        ) LOOP
+            v_resultado(v_idx).credencial_piloto   := r.credencial_FIA_pessoa;
+            v_resultado(v_idx).nome_piloto         := r.nome;
+            v_resultado(v_idx).codigo_chassi       := r.codigo_chassi;
+            v_resultado(v_idx).nome_modelo         := r.nome_modelo;
+            v_resultado(v_idx).ano_projeto         := r.ano_projeto_modelo;
+            v_idx := v_idx + 1;
+        END LOOP;
+
+        RETURN v_resultado;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE_APPLICATION_ERROR(
+                -20006,
+                'Erro ao cruzar pilotos e chassis: ' || SQLERRM
+            );
+    END fn_cruzar_pilotos_chassis;
 
 END PKG_DIRECAO_PROVA;
 /
