@@ -152,6 +152,15 @@ CREATE OR REPLACE PACKAGE PKG_TELEMETRIA_ANALISE AS
         p_tipo_sessao IN Volta.tipo_sessao%TYPE DEFAULT NULL
     ) RETURN t_pilotos_tempos;
 
+
+    -- ==========================================
+    -- CHECAR SUPERAÇÕES
+    -- ==========================================
+    TYPE t_tabela_telemetria IS TABLE OF Telemetria%ROWTYPE INDEX BY PLS_INTEGER;
+
+    FUNCTION fn_vel_superou_algum_rival(p_piloto IN Telemetria.credencial_FIA_piloto%TYPE, p_equipe_alvo IN Equipe.nome_equipe%TYPE) RETURN t_tabela_telemetria;
+    FUNCTION fn_vel_superou_todos_rivais(p_piloto IN Telemetria.credencial_FIA_piloto%TYPE, p_equipe_alvo IN Equipe.nome_equipe%TYPE) RETURN t_tabela_telemetria;
+
 END PKG_TELEMETRIA_ANALISE;
 /
 
@@ -618,6 +627,57 @@ CREATE OR REPLACE PACKAGE BODY PKG_TELEMETRIA_ANALISE AS
                 'Erro ao listar pilotos com tempos: ' || SQLERRM
             );
     END fn_listar_pilotos_com_tempos;
+
+
+    -- ==========================================
+    -- CHECAR SUPERAÇÕES
+    -- ==========================================
+    FUNCTION fn_vel_superou_algum_rival(p_piloto IN Telemetria.credencial_FIA_piloto%TYPE, p_equipe_alvo IN Equipe.nome_equipe%TYPE) RETURN t_tabela_telemetria IS
+        v_tabela t_tabela_telemetria;
+        v_idx    PLS_INTEGER := 1;
+    BEGIN
+        FOR r IN (
+            SELECT * FROM Telemetria
+            WHERE credencial_FIA_piloto = p_piloto
+              AND velocidade > ANY (
+                  SELECT t.velocidade
+                  FROM Telemetria t
+                  INNER JOIN Participa_sessao ps ON t.credencial_FIA_piloto = ps.credencial_FIA_piloto
+                  INNER JOIN Chassi c ON ps.codigo_chassi = c.codigo_chassi
+                  INNER JOIN Modelo_carro mc ON c.nome_modelo = mc.nome_modelo
+                  WHERE mc.nome_equipe_desenvolvedora = p_equipe_alvo
+              )
+        ) LOOP
+            v_tabela(v_idx) := r;
+            v_idx := v_idx + 1;
+        END LOOP;
+        
+        RETURN v_tabela;
+    END fn_vel_superou_algum_rival;
+
+
+    FUNCTION fn_vel_superou_todos_rivais(p_piloto IN Telemetria.credencial_FIA_piloto%TYPE, p_equipe_alvo IN Equipe.nome_equipe%TYPE) RETURN t_tabela_telemetria IS
+        v_tabela t_tabela_telemetria;
+        v_idx    PLS_INTEGER := 1;
+    BEGIN
+        FOR r IN (
+            SELECT * FROM Telemetria
+            WHERE credencial_FIA_piloto = p_piloto
+              AND velocidade > ALL (
+                  SELECT t.velocidade
+                  FROM Telemetria t
+                  INNER JOIN Participa_sessao ps ON t.credencial_FIA_piloto = ps.credencial_FIA_piloto
+                  INNER JOIN Chassi c ON ps.codigo_chassi = c.codigo_chassi
+                  INNER JOIN Modelo_carro mc ON c.nome_modelo = mc.nome_modelo
+                  WHERE mc.nome_equipe_desenvolvedora = p_equipe_alvo
+              )
+        ) LOOP
+            v_tabela(v_idx) := r;
+            v_idx := v_idx + 1;
+        END LOOP;
+        
+        RETURN v_tabela;
+    END fn_vel_superou_todos_rivais;
 
 END PKG_TELEMETRIA_ANALISE;
 /
