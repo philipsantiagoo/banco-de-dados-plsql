@@ -4,10 +4,10 @@
 --   2. pr_renovar_passaporte: atualiza data de emissão e validade do passaporte
 --   3. pr_adicionar_telefone: insere novo contato telefônico
 CREATE OR REPLACE PACKAGE PKG_GESTAO_PESSOAS AS
-    
+    TYPE t_tabela_pessoas IS TABLE OF Pessoa%ROWTYPE INDEX BY PLS_INTEGER;
+
     FUNCTION fn_dias_vencimento_passaporte(p_credencial IN Pessoa.credencial_FIA%TYPE) RETURN NUMBER;
-    
-    
+    FUNCTION fn_buscar_pessoa_por_nome(p_parte_nome IN Pessoa.nome%TYPE) RETURN t_tabela_pessoas; 
     
     PROCEDURE pr_renovar_passaporte(
         p_credencial IN Pessoa.credencial_FIA%TYPE,
@@ -53,6 +53,23 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAO_PESSOAS AS
             RAISE_APPLICATION_ERROR(-20002, 'Erro ao consultar passaporte: ' || SQLERRM);
     END fn_dias_vencimento_passaporte;
     
+    FUNCTION fn_buscar_pessoa_por_nome(p_parte_nome IN Pessoa.nome%TYPE) RETURN t_tabela_pessoas IS
+    v_tabela t_tabela_pessoas;
+    v_linha  Pessoa%ROWTYPE;
+    v_idx    PLS_INTEGER := 1;
+    BEGIN
+        FOR r_pessoa IN (SELECT * FROM Pessoa WHERE nome LIKE '%' || p_parte_nome || '%' ORDER BY nome)
+        LOOP
+            v_tabela(v_idx) := r_pessoa;
+            v_idx := v_idx + 1;
+        END LOOP;
+        
+        RETURN v_tabela;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE_APPLICATION_ERROR(-20013, 'Erro ao buscar pessoas por nome: ' || SQLERRM);
+    END fn_buscar_pessoa_por_nome;
+
     PROCEDURE pr_renovar_passaporte(
         p_credencial IN Pessoa.credencial_FIA%TYPE,
         p_anos_validade IN NUMBER

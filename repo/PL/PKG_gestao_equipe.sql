@@ -5,7 +5,8 @@ CREATE OR REPLACE PACKAGE PKG_GESTAO_EQUIPE AS
     ---------------------------------------------------------
     -- SEÇÃO 0: TIPOS ESPECIAIS (Público)
     ---------------------------------------------------------
-
+    TYPE rec_contagem_funcao      IS RECORD (nome_cargo VARCHAR2(100), quantidade NUMBER);
+    TYPE tipo_tabela_contagem     IS TABLE OF rec_contagem_funcao INDEX BY PLS_INTEGER;
     TYPE tipo_tabela_funcionarios IS TABLE OF Funcionario_equipe%ROWTYPE INDEX BY PLS_INTEGER;
     TYPE tipo_tabela_engenheiros  IS TABLE OF Engenheiro%ROWTYPE INDEX BY PLS_INTEGER;
     TYPE tipo_tabela_mecanicos    IS TABLE OF Mecanico%ROWTYPE INDEX BY PLS_INTEGER;
@@ -102,6 +103,7 @@ CREATE OR REPLACE PACKAGE PKG_GESTAO_EQUIPE AS
     FUNCTION fn_listar_mecanicos(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_mecanicos;
     FUNCTION fn_listar_chefes(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_chefes;
 
+<<<<<<< implementacao_join
 
     ---------------------------------------------------------
     -- LISTAR EQUIPES COM FUNCIONÁRIOS (RIGHT OUTER JOIN)
@@ -122,6 +124,12 @@ CREATE OR REPLACE PACKAGE PKG_GESTAO_EQUIPE AS
     FUNCTION fn_listar_equipes_com_funcionarios(
         p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL
     ) RETURN t_equipes_funcionarios;
+=======
+    FUNCTION fn_agrupar_por_funcao_geral(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem;
+    FUNCTION fn_agrupar_por_especialidade_eng(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem;
+    FUNCTION fn_agrupar_por_posicao_mec(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem;
+    FUNCTION fn_agrupar_por_cargo_chefe(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem;
+>>>>>>> develop
 
 END PKG_GESTAO_EQUIPE;
 /
@@ -402,6 +410,92 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAO_EQUIPE AS
         
         RETURN v_tabela;
     END fn_listar_chefes;
+
+    -- ======================================================
+    -- RELATÓRIOS AGREGADOS (GROUP BY)
+    -- ======================================================
+
+    FUNCTION fn_agrupar_por_funcao_geral(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem IS
+        v_tabela tipo_tabela_contagem;
+        v_idx    PLS_INTEGER := 1;
+    BEGIN
+        FOR r IN (
+            SELECT funcao_equipe AS cargo, COUNT(*) AS total
+            FROM Funcionario_equipe
+            WHERE (p_nome_equipe IS NULL OR nome_equipe_contratante = p_nome_equipe)
+            GROUP BY funcao_equipe
+            ORDER BY total DESC
+        ) LOOP
+            v_tabela(v_idx).nome_cargo := r.cargo;
+            v_tabela(v_idx).quantidade := r.total;
+            v_idx := v_idx + 1;
+        END LOOP;
+        
+        RETURN v_tabela;
+    END fn_agrupar_por_funcao_geral;
+
+
+    FUNCTION fn_agrupar_por_especialidade_eng(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem IS
+        v_tabela tipo_tabela_contagem;
+        v_idx    PLS_INTEGER := 1;
+    BEGIN
+        FOR r IN (
+            SELECT NVL(eng.especialidade, 'Sem Especialidade Definida') AS cargo, COUNT(*) AS total
+            FROM Engenheiro eng
+            INNER JOIN Funcionario_equipe fun ON eng.credencial_FIA_funcionario = fun.credencial_FIA_pessoa
+            WHERE (p_nome_equipe IS NULL OR fun.nome_equipe_contratante = p_nome_equipe)
+            GROUP BY eng.especialidade
+            ORDER BY total DESC
+        ) LOOP
+            v_tabela(v_idx).nome_cargo := r.cargo;
+            v_tabela(v_idx).quantidade := r.total;
+            v_idx := v_idx + 1;
+        END LOOP;
+        
+        RETURN v_tabela;
+    END fn_agrupar_por_especialidade_eng;
+
+
+    FUNCTION fn_agrupar_por_posicao_mec(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem IS
+        v_tabela tipo_tabela_contagem;
+        v_idx    PLS_INTEGER := 1;
+    BEGIN
+        FOR r IN (
+            SELECT NVL(mec.posicao_pit_stop, 'Mecânico Geral') AS cargo, COUNT(*) AS total
+            FROM Mecanico mec
+            INNER JOIN Funcionario_equipe fun ON mec.credencial_FIA_funcionario = fun.credencial_FIA_pessoa
+            WHERE (p_nome_equipe IS NULL OR fun.nome_equipe_contratante = p_nome_equipe)
+            GROUP BY mec.posicao_pit_stop
+            ORDER BY total DESC
+        ) LOOP
+            v_tabela(v_idx).nome_cargo := r.cargo;
+            v_tabela(v_idx).quantidade := r.total;
+            v_idx := v_idx + 1;
+        END LOOP;
+        
+        RETURN v_tabela;
+    END fn_agrupar_por_posicao_mec;
+
+
+    FUNCTION fn_agrupar_por_cargo_chefe(p_nome_equipe IN Funcionario_equipe.nome_equipe_contratante%TYPE DEFAULT NULL) RETURN tipo_tabela_contagem IS
+        v_tabela tipo_tabela_contagem;
+        v_idx    PLS_INTEGER := 1;
+    BEGIN
+        FOR r IN (
+            SELECT NVL(ch.cargo_chefe, 'Liderança') AS cargo, COUNT(*) AS total
+            FROM Chefe ch
+            INNER JOIN Funcionario_equipe fun ON ch.credencial_FIA_funcionario = fun.credencial_FIA_pessoa
+            WHERE (p_nome_equipe IS NULL OR fun.nome_equipe_contratante = p_nome_equipe)
+            GROUP BY ch.cargo_chefe
+            ORDER BY total DESC
+        ) LOOP
+            v_tabela(v_idx).nome_cargo := r.cargo;
+            v_tabela(v_idx).quantidade := r.total;
+            v_idx := v_idx + 1;
+        END LOOP;
+        
+        RETURN v_tabela;
+    END fn_agrupar_por_cargo_chefe;
 
 
     ---------------------------------------------------------
