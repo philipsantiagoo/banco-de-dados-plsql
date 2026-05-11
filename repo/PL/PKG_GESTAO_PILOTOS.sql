@@ -16,6 +16,13 @@ CREATE OR REPLACE PACKAGE PKG_GESTAO_PILOTOS AS
     FUNCTION fn_pontuacao_campeonato(
     p_piloto IN Piloto.credencial_FIA_pessoa%TYPE,
     p_ano    IN Temporada.ano%TYPE) RETURN NUMBER;
+
+    PROCEDURE piloto_com_mais_pontos(
+        p_ano_temporada IN NUMBER,
+        p_credencial OUT VARCHAR2,
+        p_nome OUT VARCHAR2,
+        p_total_pontos OUT NUMBER
+    );
 END PKG_GESTAO_PILOTOS;
 /
 
@@ -232,6 +239,46 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAO_PILOTOS AS
             RETURN 0;
 
     END;
+
+    ----------acha o piloto com mais pontos em uma temporada--------------
+    PROCEDURE piloto_com_mais_pontos(
+        p_ano_temporada IN NUMBER,
+        p_credencial OUT VARCHAR2,
+        p_nome OUT VARCHAR2,
+        p_total_pontos OUT NUMBER
+    )
+    IS
+    BEGIN
+
+        SELECT
+            p.credencial_FIA,
+            p.nome,
+            SUM(ps.pontos) AS total_pontos
+        INTO
+            p_credencial,
+            p_nome,
+            p_total_pontos
+        FROM Pessoa p
+        JOIN Piloto pi
+            ON pi.credencial_FIA_pessoa = p.credencial_FIA
+        JOIN Participa_sessao ps
+            ON ps.credencial_FIA_piloto = pi.credencial_FIA_pessoa
+        WHERE ps.ano_gp = p_ano_temporada
+          AND ps.pontos IS NOT NULL
+        GROUP BY
+            p.credencial_FIA,
+            p.nome
+        ORDER BY total_pontos DESC
+        FETCH FIRST 1 ROW ONLY;
+
+    EXCEPTION
+
+        WHEN NO_DATA_FOUND THEN
+            p_credencial := NULL;
+            p_nome := 'Nenhum piloto encontrado';
+            p_total_pontos := 0;
+
+    END piloto_com_mais_pontos;
 
 END PKG_GESTAO_PILOTOS;
 /
