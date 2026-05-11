@@ -1,5 +1,8 @@
 CREATE OR REPLACE PACKAGE PKG_GESTAO_PILOTOS AS
 
+    TYPE t_nomes_pilotos IS TABLE OF Pessoa.nome%TYPE INDEX BY PLS_INTEGER;
+    FUNCTION fn_pilotos_por_gp(p_nome_gp IN Grande_premio.nome_gp%TYPE) RETURN t_nomes_pilotos;
+
     PROCEDURE pr_registrar_piloto(
     p_credencial IN Piloto.credencial_FIA_pessoa%TYPE,
     p_superlicenca IN Piloto.superlicenca%TYPE,
@@ -27,6 +30,34 @@ END PKG_GESTAO_PILOTOS;
 /
 
 CREATE OR REPLACE PACKAGE BODY PKG_GESTAO_PILOTOS AS
+    
+    -----------Retorna todos os pilotos de um GP------------
+    FUNCTION fn_pilotos_por_gp(p_nome_gp IN Grande_premio.nome_gp%TYPE) RETURN t_nomes_pilotos IS
+        v_tabela t_nomes_pilotos;
+        v_idx    PLS_INTEGER := 1;
+    BEGIN
+        FOR r IN (
+            SELECT p.nome
+            FROM Pessoa p 
+            INNER JOIN Piloto pi ON p.credencial_FIA = pi.credencial_FIA_pessoa
+            WHERE pi.credencial_FIA_pessoa IN (
+                SELECT credencial_FIA_piloto 
+                FROM Participa_sessao 
+                WHERE nome_gp = p_nome_gp
+            )
+            ORDER BY p.nome
+        ) LOOP
+            v_tabela(v_idx) := r.nome;
+            v_idx := v_idx + 1;
+        END LOOP;
+
+        RETURN v_tabela;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE_APPLICATION_ERROR(-20040, 'Erro ao listar pilotos por GP: ' || SQLERRM);
+    END fn_pilotos_por_gp;
+
+
     -----------Registra o piloto------------
     PROCEDURE pr_registrar_piloto(
         p_credencial   IN Piloto.credencial_FIA_pessoa%TYPE,
