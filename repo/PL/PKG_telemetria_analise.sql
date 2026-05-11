@@ -130,6 +130,28 @@ CREATE OR REPLACE PACKAGE PKG_TELEMETRIA_ANALISE AS
         p_setor       IN NUMBER
     ) RETURN INTERVAL DAY TO SECOND;
 
+
+
+    -- ==========================================
+    -- LISTAR PILOTOS COM TEMPOS (LEFT OUTER JOIN)
+    -- Retorna todos os pilotos com seus tempos de volta
+    -- Inclui pilotos sem tempos registrados
+    -- ==========================================
+
+    TYPE rec_piloto_tempo IS RECORD (
+        credencial_fia  Piloto.credencial_FIA_pessoa%TYPE,
+        nome_piloto     Pessoa.nome%TYPE,
+        nome_gp         Volta.nome_gp%TYPE,
+        tipo_sessao     Volta.tipo_sessao%TYPE,
+        tempo_volta     Volta.tempo_volta%TYPE
+    );
+    TYPE t_pilotos_tempos IS TABLE OF rec_piloto_tempo INDEX BY BINARY_INTEGER;
+
+    FUNCTION fn_listar_pilotos_com_tempos(
+        p_nome_gp     IN Volta.nome_gp%TYPE DEFAULT NULL,
+        p_tipo_sessao IN Volta.tipo_sessao%TYPE DEFAULT NULL
+    ) RETURN t_pilotos_tempos;
+
 END PKG_TELEMETRIA_ANALISE;
 /
 
@@ -547,6 +569,55 @@ CREATE OR REPLACE PACKAGE BODY PKG_TELEMETRIA_ANALISE AS
                 'Erro ao calcular melhor setor: ' || SQLERRM
             );
     END fn_melhor_setor;
+
+
+
+    -- ==========================================
+    -- LISTAR PILOTOS COM TEMPOS (LEFT OUTER JOIN)
+    -- ==========================================
+
+    FUNCTION fn_listar_pilotos_com_tempos(
+        p_nome_gp     IN Volta.nome_gp%TYPE DEFAULT NULL,
+        p_tipo_sessao IN Volta.tipo_sessao%TYPE DEFAULT NULL
+    ) RETURN t_pilotos_tempos
+    IS
+        v_resultado t_pilotos_tempos;
+        v_idx       BINARY_INTEGER := 1;
+    BEGIN
+        -- LEFT OUTER JOIN: Todos os pilotos aparecem, mesmo aqueles sem tempos
+        FOR r IN (
+            SELECT 
+                pi.credencial_FIA_pessoa,
+                pes.nome,
+                v.nome_gp,
+                v.tipo_sessao,
+                v.tempo_volta
+            FROM Piloto pi
+            LEFT OUTER JOIN Pessoa pes 
+                ON pi.credencial_FIA_pessoa = pes.credencial_FIA
+            LEFT OUTER JOIN Volta v 
+                ON pi.credencial_FIA_pessoa = v.credencial_FIA_piloto
+                AND (p_nome_gp IS NULL OR v.nome_gp = p_nome_gp)
+                AND (p_tipo_sessao IS NULL OR v.tipo_sessao = p_tipo_sessao)
+            ORDER BY pes.nome, v.nome_gp, v.tipo_sessao
+        ) LOOP
+            v_resultado(v_idx).credencial_fia  := r.credencial_FIA_pessoa;
+            v_resultado(v_idx).nome_piloto     := r.nome;
+            v_resultado(v_idx).nome_gp         := r.nome_gp;
+            v_resultado(v_idx).tipo_sessao     := r.tipo_sessao;
+            v_resultado(v_idx).tempo_volta     := r.tempo_volta;
+            v_idx := v_idx + 1;
+        END LOOP;
+
+        RETURN v_resultado;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE_APPLICATION_ERROR(
+                -20116,
+                'Erro ao listar pilotos com tempos: ' || SQLERRM
+            );
+    END fn_listar_pilotos_com_tempos;
 
 END PKG_TELEMETRIA_ANALISE;
 /
